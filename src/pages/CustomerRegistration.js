@@ -47,7 +47,7 @@ export default function CustomerRegistration({
     checkOutTime: "",
   });
 
-  //const [roomsData, setRoomsData] = useState([]);
+  const [roomsData, setRoomsData] = useState([]);
   const [bookedRooms, setBookedRooms] = useState([]);
   const [validationErrors, setValidationErrors] = useState({});
   const [totalRooms, setTotalRooms] = useState([]);
