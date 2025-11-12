@@ -21,7 +21,6 @@ import {
   MapPin,
   Mail,
   Lock,
-  Hotel,
   UtensilsCrossed,
   Database,
 } from "lucide-react";

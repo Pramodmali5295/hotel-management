@@ -50,9 +50,6 @@ export default function CustomerRegistration({
   const [roomsData, setRoomsData] = useState([]);
   const [bookedRooms, setBookedRooms] = useState([]);
   const [validationErrors, setValidationErrors] = useState({});
-
-  // const totalRooms = Array.from({ length: 20 }, (_, i) => (101 + i).toString());
-
   const [totalRooms, setTotalRooms] = useState([]);
 
   useEffect(() => {

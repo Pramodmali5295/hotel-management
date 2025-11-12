@@ -26,7 +26,6 @@ import {
   Eye,
   Pencil,
   Trash2,
-  Calendar,
   Clock,
   ChevronLeft,
   ChevronRight,
@@ -42,9 +41,9 @@ export default function Admin() {
   const [loggedInUser, setLoggedInUser] = useState("");
   const [activeSection, setActiveSection] = useState("addRooms");
   const [genderFilter, setGenderFilter] = useState("");
-  const [showFilter, setShowFilter] = useState(false);
+  //const [showFilter, setShowFilter] = useState(false);
   const [checkInFilter, setCheckInFilter] = useState("");
-  const [checkOutFilter, setCheckOutFilter] = useState("");
+  // const [checkOutFilter, setCheckOutFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const customersPerPage = 5;
   const [showRoomModal, setShowRoomModal] = useState(false);
@@ -190,47 +189,92 @@ export default function Admin() {
   }, [navigate]);
 
   // ------------------- CUSTOMERS FETCH -------------------
+  // useEffect(() => {
+  //   if (!hotel?.id) return;
+  //   const customerRef = ref(db, `${hotel.nodeType}/${hotel.id}/customers`);
+
+  //   const unsubscribe = onValue(customerRef, (snapshot) => {
+  //     if (snapshot.exists()) {
+  //       const data = snapshot.val();
+  //       const customerList = Object.keys(data)
+  //         .map((key) => ({ id: key, ...data[key] }))
+  //         .sort((a, b) => b.createdAt - a.createdAt);
+
+  //       customerList.forEach((cust) => {
+  //         if (!cust.messageSent && !prevCustomerIdsRef.current.has(cust.id)) {
+  //           prevCustomerIdsRef.current.add(cust.id);
+  //           handleCustomerRegistered(cust);
+  //         }
+  //       });
+
+  //       const now = new Date();
+  //       customerList.forEach((cust) => {
+  //         if (cust.checkOut && cust.checkOutTime) {
+  //           const checkoutDateTime = new Date(
+  //             `${cust.checkOut}T${cust.checkOutTime}`
+  //           );
+  //           if (now > checkoutDateTime) {
+  //             update(
+  //               ref(db, `${hotel.nodeType}/${hotel.id}/customers/${cust.id}`),
+  //               { status: "checkedout" }
+  //             );
+  //           }
+  //         }
+  //       });
+
+  //       setCustomers(customerList);
+  //     } else {
+  //       setCustomers([]);
+  //     }
+  //   });
+
+  //   return () => unsubscribe();
+  // }, [hotel]);
   useEffect(() => {
-    if (!hotel?.id) return;
-    const customerRef = ref(db, `${hotel.nodeType}/${hotel.id}/customers`);
+  if (!hotel?.id) return;
+  const customerRef = ref(db, `${hotel.nodeType}/${hotel.id}/customers`);
 
-    const unsubscribe = onValue(customerRef, (snapshot) => {
-      if (snapshot.exists()) {
-        const data = snapshot.val();
-        const customerList = Object.keys(data)
-          .map((key) => ({ id: key, ...data[key] }))
-          .sort((a, b) => b.createdAt - a.createdAt);
+  const unsubscribe = onValue(customerRef, (snapshot) => {
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      const customerList = Object.keys(data)
+        .map((key) => ({ id: key, ...data[key] }))
+        .sort((a, b) => b.createdAt - a.createdAt);
 
-        customerList.forEach((cust) => {
-          if (!cust.messageSent && !prevCustomerIdsRef.current.has(cust.id)) {
-            prevCustomerIdsRef.current.add(cust.id);
-            handleCustomerRegistered(cust);
-          }
-        });
+      customerList.forEach((cust) => {
+        if (!cust.messageSent && !prevCustomerIdsRef.current.has(cust.id)) {
+          prevCustomerIdsRef.current.add(cust.id);
+          handleCustomerRegistered(cust);
+        }
+      });
 
-        const now = new Date();
-        customerList.forEach((cust) => {
-          if (cust.checkOut && cust.checkOutTime) {
-            const checkoutDateTime = new Date(
-              `${cust.checkOut}T${cust.checkOutTime}`
+      const now = new Date();
+      customerList.forEach((cust) => {
+        if (cust.checkOut && cust.checkOutTime) {
+          const checkoutDateTime = new Date(
+            `${cust.checkOut}T${cust.checkOutTime}`
+          );
+          if (now > checkoutDateTime) {
+            update(
+              ref(db, `${hotel.nodeType}/${hotel.id}/customers/${cust.id}`),
+              { status: "checkedout" }
             );
-            if (now > checkoutDateTime) {
-              update(
-                ref(db, `${hotel.nodeType}/${hotel.id}/customers/${cust.id}`),
-                { status: "checkedout" }
-              );
-            }
           }
-        });
+        }
+      });
 
-        setCustomers(customerList);
-      } else {
-        setCustomers([]);
-      }
-    });
+      setCustomers(customerList);
+    } else {
+      setCustomers([]);
+    }
+  });
 
-    return () => unsubscribe();
-  }, [hotel]);
+  return () => unsubscribe();
+
+  // ✅ Suppress the missing dependency warning safely
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [hotel]);
+
 
   // ------------------- MESSAGE MANAGEMENT -------------------
   const handleSaveMessages = async () => {
@@ -317,7 +361,7 @@ export default function Admin() {
       cust.name?.toLowerCase().includes(term) || cust.mobile?.includes(term);
 
     const matchesCheckIn = !checkInFilter || cust.checkIn === checkInFilter;
-    const matchesCheckOut = !checkOutFilter || cust.checkOut === checkOutFilter;
+    // const matchesCheckOut = !checkOutFilter || cust.checkOut === checkOutFilter;
 
     // ✅ Add gender filter check here (before return)
     const matchesGender =
@@ -325,7 +369,7 @@ export default function Admin() {
       cust.gender?.toLowerCase() === genderFilter.toLowerCase();
 
     // ✅ Include matchesGender in return
-    return matchesSearch && matchesCheckIn && matchesCheckOut && matchesGender;
+    return matchesSearch && matchesCheckIn && matchesGender;
   });
 
   const indexOfLastCustomer = currentPage * customersPerPage;
@@ -352,7 +396,7 @@ export default function Admin() {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, checkInFilter, checkOutFilter, genderFilter]);
+  }, [searchTerm, checkInFilter, genderFilter]);
 
   const sendMessage = (customer, type) => {
     const msgTemplate = messages[type];
