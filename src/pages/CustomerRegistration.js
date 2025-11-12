@@ -47,7 +47,6 @@
 //     checkOutTime: "",
 //   });
 
-//   const [roomsData, setRoomsData] = useState([]);
 //   const [bookedRooms, setBookedRooms] = useState([]);
 //   const [validationErrors, setValidationErrors] = useState({});
 //   const [totalRooms, setTotalRooms] = useState([]);
@@ -108,7 +107,6 @@
 //         checkOut: data[k].checkOut,
 //         checkOutTime: data[k].checkOutTime,
 //       }));
-//       setRoomsData(bookingList);
 
 //       const now = new Date();
 //       const booked = bookingList
@@ -128,21 +126,12 @@
 //     const unsubscribe = onValue(custRef, (snapshot) => {
 //       if (snapshot.exists()) computeBookedRooms(snapshot.val());
 //       else {
-//         setRoomsData([]);
 //         setBookedRooms([]);
 //       }
 //     });
 
 //     const interval = setInterval(() => {
-//       setRoomsData((prevData) => {
-//         if (prevData.length === 0) return prevData;
-//         const dataObj = {};
-//         prevData.forEach((b) => {
-//           dataObj[b.id] = b;
-//         });
-//         computeBookedRooms(dataObj);
-//         return prevData;
-//       });
+//       setBookedRooms((prevBooked) => prevBooked);
 //     }, 60000);
 
 //     return () => {
@@ -275,7 +264,6 @@
 //         {isQRMode ? "Customer Self Registration" : "Customer Registration"}
 //       </h2>
 
-//       {/* QR Mode Info */}
 //       {isQRMode && hotelId && (
 //         <div className="bg-gradient-to-r from-blue-50 to-indigo-100 border border-blue-200 rounded-2xl p-5 mb-6 shadow-sm text-center">
 //           <h2 className="text-2xl font-semibold text-indigo-700 mb-1">
@@ -415,7 +403,6 @@
 //         )}
 //       </div>
 
-//       {/* Additional fields for Admin */}
 //       {!isQRMode && (
 //         <>
 //           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-6">
@@ -509,7 +496,6 @@
 //         </>
 //       )}
 
-//       {/* Submit */}
 //       <div className="text-center pt-6">
 //         <button
 //           type="submit"
@@ -519,7 +505,6 @@
 //         </button>
 //       </div>
 
-//       {/* Validation Summary */}
 //       {Object.keys(validationErrors).length > 0 && (
 //         <div className="mt-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl flex items-center gap-2">
 //           <AlertTriangle className="w-5 h-5" />
@@ -656,13 +641,11 @@ export default function CustomerRegistration({
 
     const unsubscribe = onValue(custRef, (snapshot) => {
       if (snapshot.exists()) computeBookedRooms(snapshot.val());
-      else {
-        setBookedRooms([]);
-      }
+      else setBookedRooms([]);
     });
 
     const interval = setInterval(() => {
-      setBookedRooms((prevBooked) => prevBooked);
+      setBookedRooms((prev) => prev);
     }, 60000);
 
     return () => {
@@ -709,9 +692,7 @@ export default function CustomerRegistration({
     const birthDate = new Date(dob);
     let age = today.getFullYear() - birthDate.getFullYear();
     const m = today.getMonth() - birthDate.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-      age--;
-    }
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
     return age >= 0 ? age : "";
   };
 
@@ -719,19 +700,13 @@ export default function CustomerRegistration({
     const { name, value } = e.target;
     setCustomer((prev) => {
       const updated = { ...prev, [name]: value };
-      if (name === "dob") {
-        updated.age = calculateAge(value);
-      }
+      if (name === "dob") updated.age = calculateAge(value);
       return updated;
     });
 
     setValidationErrors((prev) => {
       const updated = { ...prev };
-      if (name === "mobile") {
-        if (/^[6-9]\d{0,9}$/.test(value)) delete updated.mobile;
-      } else {
-        delete updated[name];
-      }
+      delete updated[name];
       return updated;
     });
   };
@@ -746,9 +721,7 @@ export default function CustomerRegistration({
     }
 
     if (!isQRMode && bookedRooms.includes(String(customer.roomNo))) {
-      alert(
-        "❌ This room is already booked for the selected period. Choose another room."
-      );
+      alert("❌ This room is already booked. Choose another room.");
       return;
     }
 
@@ -780,42 +753,38 @@ export default function CustomerRegistration({
     });
   };
 
-  const handleRoomSelect = (num) => {
-    setCustomer((prev) => ({ ...prev, roomNo: num }));
-  };
+  const handleRoomSelect = (num) => setCustomer((prev) => ({ ...prev, roomNo: num }));
 
   const isRoomBooked = (num) => bookedRooms.includes(String(num));
 
   return (
     <form
-      className="bg-white/90 backdrop-blur-lg border border-gray-200 rounded-3xl shadow-2xl p-8 max-w-4xl mx-auto font-poppins"
+      className="bg-white/90 backdrop-blur-lg border border-gray-200 rounded-3xl shadow-2xl p-6 sm:p-8 max-w-4xl mx-auto font-poppins w-full"
       onSubmit={handleSubmit}
     >
-      <h2 className="text-3xl font-bold text-center text-indigo-700 mb-6">
+      <h2 className="text-2xl sm:text-3xl font-bold text-center text-indigo-700 mb-6">
         {isQRMode ? "Customer Self Registration" : "Customer Registration"}
       </h2>
 
       {isQRMode && hotelId && (
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-100 border border-blue-200 rounded-2xl p-5 mb-6 shadow-sm text-center">
-          <h2 className="text-2xl font-semibold text-indigo-700 mb-1">
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-100 border border-blue-200 rounded-2xl p-4 sm:p-5 mb-6 text-center shadow-sm">
+          <h2 className="text-xl sm:text-2xl font-semibold text-indigo-700 mb-2">
             Welcome to {hotelDetails?.name || "Our Hotel"}
           </h2>
-          <p className="text-gray-700">
-            {hotelDetails?.location && (
-              <span className="flex justify-center items-center gap-1">
-                <MapPin className="w-4 h-4 text-indigo-600" />
-                {hotelDetails.location}
-              </span>
-            )}
-          </p>
-          <div className="flex justify-center mt-2 text-sm text-gray-600 space-x-4">
+          {hotelDetails?.location && (
+            <p className="text-gray-700 flex justify-center items-center gap-1 text-sm sm:text-base">
+              <MapPin className="w-4 h-4 text-indigo-600" />
+              {hotelDetails.location}
+            </p>
+          )}
+          <div className="flex flex-col sm:flex-row justify-center items-center mt-2 gap-2 text-sm text-gray-600">
             {hotelDetails?.email && <span>📧 {hotelDetails.email}</span>}
             {hotelDetails?.mobile && <span>📞 {hotelDetails.mobile}</span>}
           </div>
         </div>
       )}
 
-      {/* Form Fields */}
+      {/* Basic Info */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         {/* Name */}
         <div>
@@ -828,8 +797,7 @@ export default function CustomerRegistration({
             placeholder="Enter full name"
             value={customer.name}
             onChange={handleChange}
-            className="border border-gray-300 px-4 py-2.5 rounded-xl focus:ring-2 focus:ring-indigo-400 focus:outline-none w-full"
-            required
+            className="border border-gray-300 px-4 py-2.5 rounded-xl w-full focus:ring-2 focus:ring-indigo-400 outline-none"
           />
           {validationErrors.name && (
             <p className="text-red-500 text-sm mt-1">{validationErrors.name}</p>
@@ -847,17 +815,14 @@ export default function CustomerRegistration({
             placeholder="Enter mobile number"
             value={customer.mobile}
             onChange={handleChange}
-            className="border border-gray-300 px-4 py-2.5 rounded-xl focus:ring-2 focus:ring-indigo-400 focus:outline-none w-full"
-            required
+            className="border border-gray-300 px-4 py-2.5 rounded-xl w-full focus:ring-2 focus:ring-indigo-400 outline-none"
           />
           {validationErrors.mobile && (
-            <p className="text-red-500 text-sm mt-1">
-              {validationErrors.mobile}
-            </p>
+            <p className="text-red-500 text-sm mt-1">{validationErrors.mobile}</p>
           )}
         </div>
 
-        {/* Address (only for admin mode) */}
+        {/* Address */}
         {!isQRMode && (
           <div className="sm:col-span-2">
             <label className="text-gray-700 font-medium mb-1 flex items-center gap-1">
@@ -869,12 +834,10 @@ export default function CustomerRegistration({
               placeholder="Enter address"
               value={customer.address}
               onChange={handleChange}
-              className="border border-gray-300 px-4 py-2.5 rounded-xl focus:ring-2 focus:ring-indigo-400 focus:outline-none w-full"
+              className="border border-gray-300 px-4 py-2.5 rounded-xl w-full focus:ring-2 focus:ring-indigo-400 outline-none"
             />
             {validationErrors.address && (
-              <p className="text-red-500 text-sm mt-1">
-                {validationErrors.address}
-              </p>
+              <p className="text-red-500 text-sm mt-1">{validationErrors.address}</p>
             )}
           </div>
         )}
@@ -886,18 +849,15 @@ export default function CustomerRegistration({
             name="gender"
             value={customer.gender}
             onChange={handleChange}
-            className="border border-gray-300 px-4 py-2.5 rounded-xl focus:ring-2 focus:ring-indigo-400 focus:outline-none w-full"
-            required
+            className="border border-gray-300 px-4 py-2.5 rounded-xl w-full focus:ring-2 focus:ring-indigo-400 outline-none"
           >
             <option value="">Select gender</option>
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
-            <option value="Other">Other</option>
+            <option>Male</option>
+            <option>Female</option>
+            <option>Other</option>
           </select>
           {validationErrors.gender && (
-            <p className="text-red-500 text-sm mt-1">
-              {validationErrors.gender}
-            </p>
+            <p className="text-red-500 text-sm mt-1">{validationErrors.gender}</p>
           )}
         </div>
 
@@ -911,8 +871,7 @@ export default function CustomerRegistration({
             name="dob"
             value={customer.dob}
             onChange={handleChange}
-            className="border border-gray-300 px-4 py-2.5 rounded-xl focus:ring-2 focus:ring-indigo-400 focus:outline-none w-full"
-            required
+            className="border border-gray-300 px-4 py-2.5 rounded-xl w-full focus:ring-2 focus:ring-indigo-400 outline-none"
           />
           {validationErrors.dob && (
             <p className="text-red-500 text-sm mt-1">{validationErrors.dob}</p>
@@ -934,73 +893,37 @@ export default function CustomerRegistration({
         )}
       </div>
 
+      {/* Dates & Room Selection */}
       {!isQRMode && (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-6">
-            <div>
-              <label className="text-gray-700 font-medium mb-1">
-                <Calendar className="inline-block w-4 h-4 text-indigo-500" />{" "}
-                Check-in Date
-              </label>
-              <input
-                type="date"
-                name="checkIn"
-                value={customer.checkIn}
-                onChange={handleChange}
-                className="border border-gray-300 px-4 py-2.5 rounded-xl focus:ring-2 focus:ring-indigo-400 focus:outline-none w-full"
-              />
-            </div>
-
-            <div>
-              <label className="text-gray-700 font-medium mb-1">
-                <Clock className="inline-block w-4 h-4 text-indigo-500" />{" "}
-                Check-in Time
-              </label>
-              <input
-                type="time"
-                name="checkInTime"
-                value={customer.checkInTime}
-                onChange={handleChange}
-                className="border border-gray-300 px-4 py-2.5 rounded-xl focus:ring-2 focus:ring-indigo-400 focus:outline-none w-full"
-              />
-            </div>
-
-            <div>
-              <label className="text-gray-700 font-medium mb-1">
-                <Calendar className="inline-block w-4 h-4 text-indigo-500" />{" "}
-                Check-out Date
-              </label>
-              <input
-                type="date"
-                name="checkOut"
-                value={customer.checkOut}
-                onChange={handleChange}
-                className="border border-gray-300 px-4 py-2.5 rounded-xl focus:ring-2 focus:ring-indigo-400 focus:outline-none w-full"
-              />
-            </div>
-
-            <div>
-              <label className="text-gray-700 font-medium mb-1">
-                <Clock className="inline-block w-4 h-4 text-indigo-500" />{" "}
-                Check-out Time
-              </label>
-              <input
-                type="time"
-                name="checkOutTime"
-                value={customer.checkOutTime}
-                onChange={handleChange}
-                className="border border-gray-300 px-4 py-2.5 rounded-xl focus:ring-2 focus:ring-indigo-400 focus:outline-none w-full"
-              />
-            </div>
+            {[
+              { name: "checkIn", label: "Check-in Date", icon: Calendar, type: "date" },
+              { name: "checkInTime", label: "Check-in Time", icon: Clock, type: "time" },
+              { name: "checkOut", label: "Check-out Date", icon: Calendar, type: "date" },
+              { name: "checkOutTime", label: "Check-out Time", icon: Clock, type: "time" },
+            ].map(({ name, label, icon: Icon, type }) => (
+              <div key={name}>
+                <label className="text-gray-700 font-medium mb-1 flex items-center gap-1">
+                  <Icon className="w-4 h-4 text-indigo-500" /> {label}
+                </label>
+                <input
+                  type={type}
+                  name={name}
+                  value={customer[name]}
+                  onChange={handleChange}
+                  className="border border-gray-300 px-4 py-2.5 rounded-xl w-full focus:ring-2 focus:ring-indigo-400 outline-none"
+                />
+              </div>
+            ))}
           </div>
 
           {/* Room Selection */}
           <div className="mt-6">
-            <label className="block text-gray-700 font-medium mb-2">
-              <Home className="inline-block w-4 h-4 text-indigo-500" /> Select
-              Room Number
+            <label className="block text-gray-700 font-medium mb-2 flex items-center gap-1">
+              <Home className="w-4 h-4 text-indigo-500" /> Select Room Number
             </label>
-            <div className="grid grid-cols-5 sm:grid-cols-10 gap-2">
+            <div className="grid grid-cols-4 sm:grid-cols-8 md:grid-cols-10 gap-2">
               {totalRooms.map((num) => {
                 const booked = isRoomBooked(num);
                 const selected = customer.roomNo === num;
@@ -1009,6 +932,7 @@ export default function CustomerRegistration({
                     type="button"
                     key={num}
                     onClick={() => !booked && handleRoomSelect(num)}
+                    disabled={booked}
                     className={`p-2 text-sm rounded-lg font-semibold transition border ${
                       booked
                         ? "bg-red-100 text-red-600 border-red-300 cursor-not-allowed"
@@ -1016,7 +940,6 @@ export default function CustomerRegistration({
                         ? "bg-green-100 text-green-700 border-green-400"
                         : "bg-gray-50 hover:bg-indigo-100 text-gray-700 border-gray-300"
                     }`}
-                    disabled={booked}
                   >
                     {num}
                   </button>
@@ -1027,6 +950,7 @@ export default function CustomerRegistration({
         </>
       )}
 
+      {/* Submit */}
       <div className="text-center pt-6">
         <button
           type="submit"
@@ -1037,7 +961,7 @@ export default function CustomerRegistration({
       </div>
 
       {Object.keys(validationErrors).length > 0 && (
-        <div className="mt-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl flex items-center gap-2">
+        <div className="mt-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl flex items-center gap-2 text-sm sm:text-base">
           <AlertTriangle className="w-5 h-5" />
           Please fill all required fields correctly.
         </div>
