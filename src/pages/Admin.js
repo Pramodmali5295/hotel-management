@@ -1189,7 +1189,8 @@
 //     </div>
 //   );
 // }
-import React, { useState, useEffect, useRef } from "react";
+
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { db, auth } from "../firebase";
 import {
   ref,
@@ -1283,7 +1284,66 @@ export default function Admin() {
   const dummyMessageShownRef = useRef(false);
 
   // ------------------- MESSAGE HANDLER FUNCTION (kept intact) -------------------
-  const handleCustomerRegistered = (customer) => {
+  // const handleCustomerRegistered = (customer) => {
+  //   if (customer.messageSent) return;
+
+  //   // 🛑 Skip if checkout info is missing
+  //   if (!customer.checkOut || !customer.checkOutTime) {
+  //     console.log(
+  //       "⏳ Skipping message send — waiting for admin to add checkout info."
+  //     );
+  //     return;
+  //   }
+
+  //   // ✅ Send check-in message immediately
+  //   if (messages.checkin) sendMessage(customer, "checkin");
+
+  //   // ✅ Determine checkout date/time
+  //   const checkoutDateTime = new Date(
+  //     `${customer.checkOut}T${customer.checkOutTime}`
+  //   );
+  //   const now = new Date();
+
+  //   // ✅ Store timeout IDs to clear after checkout
+  //   const customTimeouts = [];
+
+  //   // Schedule custom messages only before checkout
+  //   const customKeys = Object.keys(messages).filter((key) =>
+  //     key.startsWith("custom_")
+  //   );
+  //   customKeys.forEach((key, index) => {
+  //     const delay = (index + 1) * 60 * 1000;
+  //     const scheduledTime = new Date(now.getTime() + delay);
+
+  //     if (scheduledTime < checkoutDateTime) {
+  //       const timeoutId = setTimeout(() => sendMessage(customer, key), delay);
+  //       customTimeouts.push(timeoutId);
+  //     }
+  //   });
+
+  //   // Schedule checkout message (1 min before checkout)
+  //   if (messages.checkout) {
+  //     const delay = checkoutDateTime.getTime() - now.getTime() - 1 * 60 * 1000;
+  //     if (delay > 0) {
+  //       setTimeout(() => {
+  //         sendMessage(customer, "checkout");
+  //         customTimeouts.forEach((id) => clearTimeout(id));
+  //       }, delay);
+  //     }
+  //   }
+
+  //   // ✅ Mark as message sent
+  //   if (hotel?.id && customer?.id) {
+  //     update(
+  //       ref(db, `${hotel.nodeType}/${hotel.id}/customers/${customer.id}`),
+  //       {
+  //         messageSent: true,
+  //       }
+  //     );
+  //   }
+  // };
+const handleCustomerRegistered = useCallback(
+  (customer) => {
     if (customer.messageSent) return;
 
     // 🛑 Skip if checkout info is missing
@@ -1340,7 +1400,9 @@ export default function Admin() {
         }
       );
     }
-  };
+  },
+  [messages, hotel] // <-- MUST include these
+);
 
   // ------------------- AUTH + HOTEL/RESTO DATA FETCH -------------------
   useEffect(() => {
@@ -1391,47 +1453,90 @@ export default function Admin() {
   }, [navigate]);
 
   // ------------------- CUSTOMERS FETCH -------------------
+  // useEffect(() => {
+  //   if (!hotel?.id) return;
+  //   const customerRef = ref(db, `${hotel.nodeType}/${hotel.id}/customers`);
+
+  //   const unsubscribe = onValue(customerRef, (snapshot) => {
+  //     if (snapshot.exists()) {
+  //       const data = snapshot.val();
+  //       const customerList = Object.keys(data)
+  //         .map((key) => ({ id: key, ...data[key] }))
+  //         .sort((a, b) => b.createdAt - a.createdAt);
+
+  //       customerList.forEach((cust) => {
+  //         if (!cust.messageSent && !prevCustomerIdsRef.current.has(cust.id)) {
+  //           prevCustomerIdsRef.current.add(cust.id);
+  //           handleCustomerRegistered(cust);
+  //         }
+  //       });
+
+  //       const now = new Date();
+  //       customerList.forEach((cust) => {
+  //         if (cust.checkOut && cust.checkOutTime) {
+  //           const checkoutDateTime = new Date(
+  //             `${cust.checkOut}T${cust.checkOutTime}`
+  //           );
+  //           if (now > checkoutDateTime) {
+  //             update(
+  //               ref(db, `${hotel.nodeType}/${hotel.id}/customers/${cust.id}`),
+  //               { status: "checkedout" }
+  //             );
+  //           }
+  //         }
+  //       });
+
+  //       setCustomers(customerList);
+  //     } else {
+  //       setCustomers([]);
+  //     }
+  //   });
+
+  //   return () => unsubscribe();
+  // }, [hotel]);
   useEffect(() => {
-    if (!hotel?.id) return;
-    const customerRef = ref(db, `${hotel.nodeType}/${hotel.id}/customers`);
+  if (!hotel?.id) return;
 
-    const unsubscribe = onValue(customerRef, (snapshot) => {
-      if (snapshot.exists()) {
-        const data = snapshot.val();
-        const customerList = Object.keys(data)
-          .map((key) => ({ id: key, ...data[key] }))
-          .sort((a, b) => b.createdAt - a.createdAt);
+  const customerRef = ref(db, `${hotel.nodeType}/${hotel.id}/customers`);
 
-        customerList.forEach((cust) => {
-          if (!cust.messageSent && !prevCustomerIdsRef.current.has(cust.id)) {
-            prevCustomerIdsRef.current.add(cust.id);
-            handleCustomerRegistered(cust);
-          }
-        });
+  const unsubscribe = onValue(customerRef, (snapshot) => {
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      const customerList = Object.keys(data)
+        .map((key) => ({ id: key, ...data[key] }))
+        .sort((a, b) => b.createdAt - a.createdAt);
 
-        const now = new Date();
-        customerList.forEach((cust) => {
-          if (cust.checkOut && cust.checkOutTime) {
-            const checkoutDateTime = new Date(
-              `${cust.checkOut}T${cust.checkOutTime}`
+      customerList.forEach((cust) => {
+        if (!cust.messageSent && !prevCustomerIdsRef.current.has(cust.id)) {
+          prevCustomerIdsRef.current.add(cust.id);
+          handleCustomerRegistered(cust);
+        }
+      });
+
+      const now = new Date();
+      customerList.forEach((cust) => {
+        if (cust.checkOut && cust.checkOutTime) {
+          const checkoutDateTime = new Date(
+            `${cust.checkOut}T${cust.checkOutTime}`
+          );
+          if (now > checkoutDateTime) {
+            update(
+              ref(db, `${hotel.nodeType}/${hotel.id}/customers/${cust.id}`),
+              { status: "checkedout" }
             );
-            if (now > checkoutDateTime) {
-              update(
-                ref(db, `${hotel.nodeType}/${hotel.id}/customers/${cust.id}`),
-                { status: "checkedout" }
-              );
-            }
           }
-        });
+        }
+      });
 
-        setCustomers(customerList);
-      } else {
-        setCustomers([]);
-      }
-    });
+      setCustomers(customerList);
+    } else {
+      setCustomers([]);
+    }
+  });
 
-    return () => unsubscribe();
-  }, [hotel]);
+  return () => unsubscribe();
+}, [hotel, handleCustomerRegistered]);
+
 
   // ------------------- MESSAGE MANAGEMENT -------------------
   const handleSaveMessages = async () => {
