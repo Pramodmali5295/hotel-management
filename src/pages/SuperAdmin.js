@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { db, auth } from "../firebase";
 import { ref, set, get, remove, update } from "firebase/database";
@@ -108,7 +107,13 @@ export default function SuperAdmin() {
       });
 
       alert(`${type === "hotel" ? "Hotel" : "Restaurant"} added successfully!`);
-      setEntry({ name: "", location: "", email: "", mobile: "", type: "hotel" });
+      setEntry({
+        name: "",
+        location: "",
+        email: "",
+        mobile: "",
+        type: "hotel",
+      });
       fetchEntries();
       await secondaryAuth.signOut();
     } catch (error) {
@@ -199,7 +204,9 @@ export default function SuperAdmin() {
               <h3 className="text-base sm:text-lg font-semibold opacity-90">
                 Total Entries
               </h3>
-              <p className="text-3xl sm:text-4xl font-bold mt-2">{totalEntries}</p>
+              <p className="text-3xl sm:text-4xl font-bold mt-2">
+                {totalEntries}
+              </p>
             </div>
             <div className="bg-white/25 p-3 sm:p-4 rounded-full">
               <Database className="w-8 sm:w-10 h-8 sm:h-10 text-white" />
@@ -212,7 +219,9 @@ export default function SuperAdmin() {
               <h3 className="text-base sm:text-lg font-semibold opacity-90">
                 Total Hotels
               </h3>
-              <p className="text-3xl sm:text-4xl font-bold mt-2">{hotelCount}</p>
+              <p className="text-3xl sm:text-4xl font-bold mt-2">
+                {hotelCount}
+              </p>
             </div>
             <div className="bg-white/25 p-3 sm:p-4 rounded-full">
               <Building2 className="w-8 sm:w-10 h-8 sm:h-10 text-white" />
@@ -225,7 +234,9 @@ export default function SuperAdmin() {
               <h3 className="text-base sm:text-lg font-semibold opacity-90">
                 Total Bars / Restaurants
               </h3>
-              <p className="text-3xl sm:text-4xl font-bold mt-2">{restoCount}</p>
+              <p className="text-3xl sm:text-4xl font-bold mt-2">
+                {restoCount}
+              </p>
             </div>
             <div className="bg-white/25 p-3 sm:p-4 rounded-full">
               <UtensilsCrossed className="w-8 sm:w-10 h-8 sm:h-10 text-white" />
@@ -237,7 +248,10 @@ export default function SuperAdmin() {
       {/* Main Section */}
       <main className="flex-1 py-6 sm:py-8 px-4 sm:px-8 w-full max-w-7xl mx-auto">
         {/* Add / Update Form */}
-        <div ref={formRef} className="bg-white rounded-2xl shadow-lg p-6 sm:p-8 mb-8 border border-gray-100">
+        <div
+          ref={formRef}
+          className="bg-white rounded-2xl shadow-lg p-6 sm:p-8 mb-8 border border-gray-100"
+        >
           <h2 className="text-xl sm:text-2xl font-bold text-blue-700 mb-6 flex items-center gap-2">
             {editingKey ? (
               <>
@@ -290,7 +304,9 @@ export default function SuperAdmin() {
                   type={f.type}
                   value={entry[f.key]}
                   disabled={f.disabled}
-                  onChange={(e) => setEntry({ ...entry, [f.key]: e.target.value })}
+                  onChange={(e) =>
+                    setEntry({ ...entry, [f.key]: e.target.value })
+                  }
                   className="border border-gray-300 px-4 py-3 rounded-xl w-full focus:ring-2 focus:ring-blue-500 outline-none text-sm sm:text-base"
                 />
               </div>
@@ -435,7 +451,9 @@ export default function SuperAdmin() {
           {totalPages > 1 && (
             <div className="flex flex-wrap justify-center items-center gap-4 mt-6">
               <button
-                onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
+                onClick={() =>
+                  currentPage > 1 && setCurrentPage(currentPage - 1)
+                }
                 disabled={currentPage === 1}
                 className={`px-5 py-2 rounded-lg text-sm font-medium border transition ${
                   currentPage === 1
@@ -468,7 +486,8 @@ export default function SuperAdmin() {
 
       {/* Footer */}
       <footer className="text-center py-4 text-sm text-gray-500 border-t mt-10 px-4">
-        © {new Date().getFullYear()} Hotel & Bar Management System | Super Admin Panel
+        © {new Date().getFullYear()} Hotel & Bar Management System | Super Admin
+        Panel
       </footer>
     </div>
   );

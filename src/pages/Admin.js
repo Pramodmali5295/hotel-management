@@ -482,10 +482,7 @@ export default function Admin() {
           ].map((btn) => {
             const Icon = btn.icon;
 
-            // const handleClick =
-            //   btn.id === "addRooms"
-            //     ? () => setShowRoomModal(true)
-            //     : () => setActiveSection(btn.id);
+          
             const handleClick =
               btn.id === "addRooms"
                 ? () => setShowRoomModal(true)

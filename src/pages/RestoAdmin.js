@@ -311,102 +311,161 @@ export default function RestoAdmin() {
       )}
 
       <main className="flex-1 max-w-6xl mx-auto py-8 px-4 sm:px-6">
-        {/* Restaurant Info */}
-        {restoInfo && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-            <div className="bg-white shadow p-6 rounded-2xl border border-gray-200">
-              <h2 className="text-lg sm:text-xl font-semibold text-indigo-700 mb-4 flex items-center gap-2">
-                <QrCode className="w-5 h-5 text-indigo-600" /> Restaurant Info
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-gray-800 text-sm sm:text-base">
-                <p className="flex items-center gap-2">
-                  <UserPlus className="w-4 h-4 text-indigo-600" />
-                  <span className="font-semibold">Name:</span>{" "}
-                  {restoInfo.name || "—"}
-                </p>
-                <p className="flex items-center gap-2">
-                  <MessageSquare className="w-4 h-4 text-indigo-600" />
-                  <span className="font-semibold">Email:</span>{" "}
-                  {restoInfo.email || "—"}
-                </p>
-                <p className="flex items-center gap-2">
-                  <Phone className="w-4 h-4 text-indigo-600" />
-                  <span className="font-semibold">Mobile:</span>{" "}
-                  {restoInfo.mobile || "—"}
-                </p>
-                <p className="flex items-center gap-2">
-                  <Users className="w-4 h-4 text-indigo-600" />
-                  <span className="font-semibold">Total Customers:</span>{" "}
-                  {customers.length || 0}
-                </p>
-              </div>
-            </div>
+        {/* --- RESTO INFO + QR + DASHBOARD (ADMIN MODE) --- */}
 
-            {!showQRMode && (
+        {!showQRMode && restoInfo && (
+          <>
+            {/* Resto Info + QR Code in one row */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+              {/* LEFT: RESTO INFO */}
+              <div className="bg-white shadow p-6 rounded-2xl border border-gray-200">
+                <h2 className="text-lg sm:text-xl font-semibold text-indigo-700 mb-4 flex items-center gap-2">
+                  <QrCode className="w-5 h-5 text-indigo-600" /> Restaurant Info
+                </h2>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-gray-800 text-sm sm:text-base">
+                  <p className="flex items-center gap-2">
+                    <UserPlus className="w-4 h-4 text-indigo-600" />
+                    <span className="font-semibold">Name:</span>{" "}
+                    {restoInfo.name}
+                  </p>
+
+                  <p className="flex items-center gap-2">
+                    <MessageSquare className="w-4 h-4 text-indigo-600" />
+                    <span className="font-semibold">Email:</span>{" "}
+                    {restoInfo.email}
+                  </p>
+
+                  <p className="flex items-center gap-2">
+                    <Phone className="w-4 h-4 text-indigo-600" />
+                    <span className="font-semibold">Mobile:</span>{" "}
+                    {restoInfo.mobile}
+                  </p>
+
+                  <p className="flex items-center gap-2">
+                    <Users className="w-4 h-4 text-indigo-600" />
+                    <span className="font-semibold">Total Customers:</span>{" "}
+                    {customers.length}
+                  </p>
+                </div>
+              </div>
+
+              {/* RIGHT: QR CODE */}
               <div className="bg-gradient-to-br from-indigo-50 to-blue-100 p-6 rounded-2xl text-center shadow border border-indigo-100">
                 <h2 className="text-lg sm:text-xl font-semibold text-indigo-700 mb-3 flex items-center justify-center gap-2">
                   <QrCode className="w-5 h-5 text-indigo-600" /> Registration QR
                 </h2>
+
                 <div className="flex justify-center">
                   <QRCodeCanvas
                     value={`${window.location.origin}/resto-admin?qrMode=true&restoId=${restoInfo.uid}`}
-                    size={130}
+                    size={150}
                     className="p-2 bg-white rounded-lg shadow"
                   />
                 </div>
+
                 <div className="mt-3 break-all text-xs sm:text-sm text-gray-600">
                   {`${window.location.origin}/resto-admin?qrMode=true&restoId=${restoInfo.uid}`}
                 </div>
               </div>
-            )}
-          </div>
-        )}
+            </div>
 
-        {/* Dashboard */}
-        {!showQRMode && (
-          <section className="py-8 px-3 sm:px-6 mb-10">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[
-                {
-                  title: "Total Customers",
-                  count: totalCustomers,
-                  color: "from-blue-500 to-blue-600",
-                  icon: <Users className="w-8 sm:w-10 h-8 sm:h-10" />,
-                },
-                {
-                  title: "Recent Check-ins",
-                  count: activeCheckins,
-                  color: "from-green-500 to-emerald-600",
-                  icon: <QrCode className="w-8 sm:w-10 h-8 sm:h-10" />,
-                },
-                {
-                  title: "Active Messages",
-                  count: totalMessages,
-                  color: "from-amber-500 to-orange-600",
-                  icon: <MessageSquare className="w-8 sm:w-10 h-8 sm:h-10" />,
-                },
-              ].map((card, i) => (
-                <div
-                  key={i}
-                  className={`bg-gradient-to-br ${card.color} text-white rounded-2xl p-6 sm:p-8 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition`}
-                >
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <h3 className="text-base sm:text-lg font-semibold opacity-90">
-                        {card.title}
-                      </h3>
-                      <p className="text-3xl sm:text-4xl font-bold mt-2">
-                        {card.count}
-                      </p>
-                    </div>
-                    <div className="bg-white/25 p-3 sm:p-4 rounded-full">
-                      {card.icon}
+            {/* Dashboard Cards */}
+            <section className="py-4 px-3 sm:px-6 mb-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[
+                  {
+                    title: "Total Customers",
+                    count: totalCustomers,
+                    color: "from-blue-500 to-blue-600",
+                    icon: <Users className="w-8 h-8 sm:w-10 sm:h-10" />,
+                  },
+                  {
+                    title: "Recent Check-ins",
+                    count: activeCheckins,
+                    color: "from-green-500 to-emerald-600",
+                    icon: <QrCode className="w-8 h-8 sm:w-10 sm:h-10" />,
+                  },
+                  {
+                    title: "Active Messages",
+                    count: totalMessages,
+                    color: "from-amber-500 to-orange-600",
+                    icon: <MessageSquare className="w-8 h-8 sm:w-10 sm:h-10" />,
+                  },
+                ].map((card, i) => (
+                  <div
+                    key={i}
+                    className={`bg-gradient-to-br ${card.color} text-white rounded-2xl p-6 sm:p-8 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition`}
+                  >
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <h3 className="text-base sm:text-lg font-semibold opacity-90">
+                          {card.title}
+                        </h3>
+                        <p className="text-3xl sm:text-4xl font-bold mt-2">
+                          {card.count}
+                        </p>
+                      </div>
+
+                      <div className="bg-white/25 p-3 sm:p-4 rounded-full">
+                        {card.icon}
+                      </div>
                     </div>
                   </div>
+                ))}
+              </div>
+            </section>
+          </>
+        )}
+
+        {/* --- QR MODE RESTAURANT CARD (IMAGE STYLE) --- */}
+        {showQRMode && restoInfo && (
+          <div className="w-full mb-6">
+            <div className="bg-gradient-to-br from-blue-50 via-white to-blue-100 p-5 rounded-2xl shadow-md">
+              <div className="bg-white border border-gray-200 rounded-2xl shadow-lg overflow-hidden">
+                {/* Header */}
+                <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 text-center">
+                  <h2 className="text-xl font-bold text-white">
+                    Welcome to {restoInfo.name}
+                  </h2>
+                  <p className="text-blue-100 text-sm mt-1">
+                    Please complete your registration
+                  </p>
                 </div>
-              ))}
+
+                {/* Content - 2 Column Grid */}
+                <div className="p-6 text-gray-700 text-base grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Restaurant Name */}
+                  <div className="flex flex-col">
+                    <span className="font-semibold text-gray-900">
+                      Restaurant Name:
+                    </span>
+                    <span>{restoInfo.name}</span>
+                  </div>
+
+                  {/* Mobile */}
+                  <div className="flex flex-col">
+                    <span className="font-semibold text-gray-900">Mobile:</span>
+                    <span>{restoInfo.mobile}</span>
+                  </div>
+
+                  {/* Location */}
+                  <div className="flex flex-col">
+                    <span className="font-semibold text-gray-900">
+                      Location:
+                    </span>
+                    <span>{restoInfo.location || "Not provided"}</span>
+                  </div>
+
+                  {/* Email */}
+                  <div className="flex flex-col">
+                    <span className="font-semibold text-gray-900">Email:</span>
+                    <span className="break-all">{restoInfo.email}</span>
+                  </div>
+                </div>
+              </div>
             </div>
-          </section>
+          </div>
         )}
 
         {/* Navigation Buttons */}
