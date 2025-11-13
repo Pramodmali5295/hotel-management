@@ -1342,58 +1342,77 @@ export default function Admin() {
   //     );
   //   }
   // };
+  const sendMessage = useCallback(
+    (customer, type) => {
+      const msgTemplate = messages[type];
+      if (!msgTemplate) return;
 
- const handleCustomerRegistered = useCallback(
-  (customer) => {
-    if (customer.messageSent) return;
+      const msg = msgTemplate
+        .replace("{name}", customer.name)
+        .replace("{hotelName}", hotel.name)
+        .replace("{roomNo}", customer.roomNo)
+        .replace("{checkInTime}", customer.checkInTime)
+        .replace("{checkOutTime}", customer.checkOutTime);
 
-    if (!customer.checkOut || !customer.checkOutTime) {
-      console.log("⏳ Skipping message send — waiting for admin to add checkout info.");
-      return;
-    }
+      console.log(`📩 Sending ${type} message to ${customer.mobile}: ${msg}`);
+    },
+    [messages, hotel]
+  );
 
-    if (messages.checkin) sendMessage(customer, "checkin");
+  const handleCustomerRegistered = useCallback(
+    (customer) => {
+      if (customer.messageSent) return;
 
-    const checkoutDateTime = new Date(
-      `${customer.checkOut}T${customer.checkOutTime}`
-    );
-    const now = new Date();
-
-    const customTimeouts = [];
-
-    const customKeys = Object.keys(messages).filter((key) =>
-      key.startsWith("custom_")
-    );
-
-    customKeys.forEach((key, index) => {
-      const delay = (index + 1) * 60 * 1000;
-      const scheduledTime = new Date(now.getTime() + delay);
-
-      if (scheduledTime < checkoutDateTime) {
-        const timeoutId = setTimeout(() => sendMessage(customer, key), delay);
-        customTimeouts.push(timeoutId);
+      if (!customer.checkOut || !customer.checkOutTime) {
+        console.log(
+          "⏳ Skipping message send — waiting for admin to add checkout info."
+        );
+        return;
       }
-    });
 
-    if (messages.checkout) {
-      const delay = checkoutDateTime.getTime() - now.getTime() - 1 * 60 * 1000;
-      if (delay > 0) {
-        setTimeout(() => {
-          sendMessage(customer, "checkout");
-          customTimeouts.forEach((id) => clearTimeout(id));
-        }, delay);
-      }
-    }
+      if (messages.checkin) sendMessage(customer, "checkin");
 
-    if (hotel?.id && customer?.id) {
-      update(
-        ref(db, `${hotel.nodeType}/${hotel.id}/customers/${customer.id}`),
-        { messageSent: true }
+      const checkoutDateTime = new Date(
+        `${customer.checkOut}T${customer.checkOutTime}`
       );
-    }
-  },
-  [messages, hotel, sendMessage]
-);
+      const now = new Date();
+
+      const customTimeouts = [];
+
+      const customKeys = Object.keys(messages).filter((key) =>
+        key.startsWith("custom_")
+      );
+
+      customKeys.forEach((key, index) => {
+        const delay = (index + 1) * 60 * 1000;
+        const scheduledTime = new Date(now.getTime() + delay);
+
+        if (scheduledTime < checkoutDateTime) {
+          const timeoutId = setTimeout(() => sendMessage(customer, key), delay);
+          customTimeouts.push(timeoutId);
+        }
+      });
+
+      if (messages.checkout) {
+        const delay = checkoutDateTime.getTime() - now.getTime() - 60 * 1000;
+
+        if (delay > 0) {
+          setTimeout(() => {
+            sendMessage(customer, "checkout");
+            customTimeouts.forEach((id) => clearTimeout(id));
+          }, delay);
+        }
+      }
+
+      if (hotel?.id && customer?.id) {
+        update(
+          ref(db, `${hotel.nodeType}/${hotel.id}/customers/${customer.id}`),
+          { messageSent: true }
+        );
+      }
+    },
+    [messages, hotel, sendMessage]
+  );
 
   // ------------------- AUTH + HOTEL/RESTO DATA FETCH -------------------
   useEffect(() => {
@@ -1486,48 +1505,47 @@ export default function Admin() {
   //   return () => unsubscribe();
   // }, [hotel]);
   useEffect(() => {
-  if (!hotel?.id) return;
+    if (!hotel?.id) return;
 
-  const customerRef = ref(db, `${hotel.nodeType}/${hotel.id}/customers`);
+    const customerRef = ref(db, `${hotel.nodeType}/${hotel.id}/customers`);
 
-  const unsubscribe = onValue(customerRef, (snapshot) => {
-    if (snapshot.exists()) {
-      const data = snapshot.val();
-      const customerList = Object.keys(data)
-        .map((key) => ({ id: key, ...data[key] }))
-        .sort((a, b) => b.createdAt - a.createdAt);
+    const unsubscribe = onValue(customerRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        const customerList = Object.keys(data)
+          .map((key) => ({ id: key, ...data[key] }))
+          .sort((a, b) => b.createdAt - a.createdAt);
 
-      customerList.forEach((cust) => {
-        if (!cust.messageSent && !prevCustomerIdsRef.current.has(cust.id)) {
-          prevCustomerIdsRef.current.add(cust.id);
-          handleCustomerRegistered(cust);
-        }
-      });
-
-      const now = new Date();
-      customerList.forEach((cust) => {
-        if (cust.checkOut && cust.checkOutTime) {
-          const checkoutDateTime = new Date(
-            `${cust.checkOut}T${cust.checkOutTime}`
-          );
-          if (now > checkoutDateTime) {
-            update(
-              ref(db, `${hotel.nodeType}/${hotel.id}/customers/${cust.id}`),
-              { status: "checkedout" }
-            );
+        customerList.forEach((cust) => {
+          if (!cust.messageSent && !prevCustomerIdsRef.current.has(cust.id)) {
+            prevCustomerIdsRef.current.add(cust.id);
+            handleCustomerRegistered(cust);
           }
-        }
-      });
+        });
 
-      setCustomers(customerList);
-    } else {
-      setCustomers([]);
-    }
-  });
+        const now = new Date();
+        customerList.forEach((cust) => {
+          if (cust.checkOut && cust.checkOutTime) {
+            const checkoutDateTime = new Date(
+              `${cust.checkOut}T${cust.checkOutTime}`
+            );
+            if (now > checkoutDateTime) {
+              update(
+                ref(db, `${hotel.nodeType}/${hotel.id}/customers/${cust.id}`),
+                { status: "checkedout" }
+              );
+            }
+          }
+        });
 
-  return () => unsubscribe();
-}, [hotel, handleCustomerRegistered]);
+        setCustomers(customerList);
+      } else {
+        setCustomers([]);
+      }
+    });
 
+    return () => unsubscribe();
+  }, [hotel, handleCustomerRegistered]);
 
   // ------------------- MESSAGE MANAGEMENT -------------------
   const handleSaveMessages = async () => {
@@ -1653,19 +1671,19 @@ export default function Admin() {
     setCurrentPage(1);
   }, [searchTerm, checkInFilter, genderFilter]);
 
-  const sendMessage = (customer, type) => {
-    const msgTemplate = messages[type];
-    if (!msgTemplate) return;
+  // const sendMessage = (customer, type) => {
+  //   const msgTemplate = messages[type];
+  //   if (!msgTemplate) return;
 
-    const msg = msgTemplate
-      .replace("{name}", customer.name)
-      .replace("{hotelName}", hotel.name)
-      .replace("{roomNo}", customer.roomNo)
-      .replace("{checkInTime}", customer.checkInTime)
-      .replace("{checkOutTime}", customer.checkOutTime);
+  //   const msg = msgTemplate
+  //     .replace("{name}", customer.name)
+  //     .replace("{hotelName}", hotel.name)
+  //     .replace("{roomNo}", customer.roomNo)
+  //     .replace("{checkInTime}", customer.checkInTime)
+  //     .replace("{checkOutTime}", customer.checkOutTime);
 
-    console.log(`📩 Sending ${type} message to ${customer.mobile}: ${msg}`);
-  };
+  //   console.log(`📩 Sending ${type} message to ${customer.mobile}: ${msg}`);
+  // };
 
   if (!hotel) {
     return (
