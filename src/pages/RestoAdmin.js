@@ -635,83 +635,74 @@ export default function RestoAdmin() {
                 </tbody>
               </table>
             </div> */}
-            <div className="w-full overflow-x-auto">
-              <table className="min-w-full border-collapse text-xs sm:text-sm">
-                <thead className="bg-blue-100">
-                  <tr>
-                    <th className="p-2 sm:p-3 text-left border-b whitespace-nowrap">
-                      Name
-                    </th>
-                    <th className="p-2 sm:p-3 text-left border-b whitespace-nowrap">
-                      Mobile
-                    </th>
-                    <th className="p-2 sm:p-3 text-left border-b whitespace-nowrap">
-                      DOB
-                    </th>
-                    <th className="p-2 sm:p-3 text-left border-b whitespace-nowrap">
-                      Gender
-                    </th>
-                    <th className="p-2 sm:p-3 text-center border-b whitespace-nowrap">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
+         <div className="w-full overflow-x-auto">
+  <table className="min-w-full border-collapse text-xs sm:text-sm">
+    <thead className="bg-blue-100">
+      <tr>
+        <th className="p-2 sm:p-3 text-left border-b whitespace-nowrap">Name</th>
+        <th className="p-2 sm:p-3 text-left border-b whitespace-nowrap">Mobile</th>
+        <th className="p-2 sm:p-3 text-left border-b whitespace-nowrap">DOB</th>
+        <th className="p-2 sm:p-3 text-left border-b whitespace-nowrap">Gender</th>
+        <th className="p-2 sm:p-3 text-center border-b whitespace-nowrap">Actions</th>
+      </tr>
+    </thead>
 
-                <tbody>
-                  {currentCustomers.length > 0 ? (
-                    currentCustomers.map(([key, item]) => (
-                      <tr
-                        key={key}
-                        className="hover:bg-gray-50 transition-colors duration-150"
-                      >
-                        <td className="p-2 sm:p-3 border-b align-middle max-w-[140px] truncate">
-                          {item.name}
-                        </td>
+    <tbody>
+      {currentCustomers.length > 0 ? (
+        currentCustomers.map(([key, item]) => (
+          <tr
+            key={key}
+            className="hover:bg-gray-50 transition-colors duration-150"
+          >
+            <td className="p-2 sm:p-3 border-b align-middle max-w-[150px] truncate">
+              {item.name}
+            </td>
 
-                        <td className="p-2 sm:p-3 border-b align-middle max-w-[120px] truncate">
-                          {item.mobile}
-                        </td>
+            <td className="p-2 sm:p-3 border-b align-middle max-w-[120px] truncate">
+              {item.mobile}
+            </td>
 
-                        <td className="p-2 sm:p-3 border-b align-middle max-w-[100px] truncate">
-                          {item.dob}
-                        </td>
+            <td className="p-2 sm:p-3 border-b align-middle max-w-[120px] truncate">
+              {item.dob}
+            </td>
 
-                        <td className="p-2 sm:p-3 border-b align-middle max-w-[80px] truncate">
-                          {item.gender}
-                        </td>
+            <td className="p-2 sm:p-3 border-b align-middle max-w-[100px] truncate">
+              {item.gender}
+            </td>
 
-                        <td className="p-2 sm:p-3 border-b text-center">
-                          <div className="flex flex-col sm:flex-row justify-center items-center gap-2 w-full">
-                            <button
-                              onClick={() => editCustomerHandler(key, item)}
-                              className="flex items-center justify-center gap-1 bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all shadow-sm w-full sm:w-auto"
-                            >
-                              <Edit3 size={14} /> Update
-                            </button>
+            <td className="p-2 sm:p-3 border-b text-center">
+              <div className="flex flex-row sm:flex-row justify-center items-center gap-2 flex-wrap">
+                <button
+                  onClick={() => editCustomerHandler(key, item)}
+                  className="flex items-center justify-center gap-1 bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all shadow-sm"
+                >
+                  <Edit3 size={14} /> Update
+                </button>
 
-                            <button
-                              onClick={() => deleteCustomer(key)}
-                              className="flex items-center justify-center gap-1 bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all shadow-sm w-full sm:w-auto"
-                            >
-                              <Trash2 size={14} /> Delete
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td
-                        colSpan="5"
-                        className="text-center py-4 text-gray-500 italic border-b"
-                      >
-                        No customers found.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+                <button
+                  onClick={() => deleteCustomer(key)}
+                  className="flex items-center justify-center gap-1 bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all shadow-sm"
+                >
+                  <Trash2 size={14} /> Delete
+                </button>
+              </div>
+            </td>
+          </tr>
+        ))
+      ) : (
+        <tr>
+          <td
+            colSpan="5"
+            className="text-center py-4 text-gray-500 italic border-b"
+          >
+            No customers found.
+          </td>
+        </tr>
+      )}
+    </tbody>
+  </table>
+</div>
+
 
             {/* Pagination */}
             {totalPages > 1 && (
