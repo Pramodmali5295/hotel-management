@@ -452,8 +452,8 @@ if (authLoading) return null;
     <div className="font-poppins min-h-screen bg-gradient-to-br from-indigo-50 via-blue-50 to-indigo-100 py-8 px-4">
       <div className="max-w-7xl mx-auto bg-white rounded-3xl shadow-2xl p-6 sm:p-8 border border-indigo-100">
         {/* HEADER */}
-        <div className="sticky top-4 z-50 flex flex-col md:flex-row justify-between items-center mb-8 bg-gradient-to-r from-indigo-700 to-blue-600 text-white p-4 sm:p-6 rounded-2xl shadow-lg backdrop-blur-md bg-opacity-95">
-          {/* Left Section: Hotel Info */}
+        {/* <div className="sticky top-4 z-50 flex flex-col md:flex-row justify-between items-center mb-8 bg-gradient-to-r from-indigo-700 to-blue-600 text-white p-4 sm:p-6 rounded-2xl shadow-lg backdrop-blur-md bg-opacity-95">
+         
           <div className="flex items-center gap-3 text-center md:text-left">
             <Building2 className="w-8 h-8 text-white/90" />
             <div>
@@ -466,7 +466,7 @@ if (authLoading) return null;
             </div>
           </div>
 
-          {/* Right Section: Username + Logout */}
+        
           <div className="flex items-center gap-2 sm:gap-3 mt-4 md:mt-0 w-full md:w-auto justify-center md:justify-end flex-nowrap overflow-hidden">
             {loggedInUser && (
               <span className="flex items-center gap-1 sm:gap-2 bg-white/15 px-2 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm truncate min-w-0">
@@ -481,7 +481,37 @@ if (authLoading) return null;
               <LogOut className="w-4 h-4 flex-shrink-0" /> Logout
             </button>
           </div>
-        </div>
+        </div> */}
+<div className="w-full sticky top-0 z-50 flex flex-col md:flex-row justify-between items-center 
+    mb-8 bg-gradient-to-r from-indigo-700 to-blue-600 text-white 
+    p-4 sm:p-6 shadow-lg backdrop-blur-md bg-opacity-95">
+
+  {/* Left Section: Hotel Info */}
+  <div className="flex items-center gap-3 text-center md:text-left w-full md:w-auto justify-center md:justify-start">
+    <Building2 className="w-8 h-8 text-white/90" />
+    <div>
+      <h1 className="text-2xl sm:text-3xl font-bold">{hotel.name} Dashboard</h1>
+      <p className="text-indigo-100/90 text-sm">Manage customers, registration & messages</p>
+    </div>
+  </div>
+
+  {/* Right Section: Username + Logout */}
+  <div className="flex items-center gap-2 sm:gap-3 mt-4 md:mt-0 w-full md:w-auto justify-center md:justify-end">
+    {loggedInUser && (
+      <span className="flex items-center gap-2 bg-white/15 px-3 py-1.5 rounded-lg text-xs sm:text-sm truncate">
+        {loggedInUser}
+      </span>
+    )}
+
+    <button
+      onClick={handleLogout}
+      className="flex items-center gap-2 bg-red-500/90 hover:bg-red-600 text-white 
+        px-4 py-2 rounded-lg shadow-md transition text-xs sm:text-sm font-semibold"
+    >
+      <LogOut className="w-4 h-4" /> Logout
+    </button>
+  </div>
+</div>
 
         {/* HOTEL INFO + QR */}
         <div className="grid md:grid-cols-2 gap-6 mb-8">
