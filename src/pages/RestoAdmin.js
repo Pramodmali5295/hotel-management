@@ -619,7 +619,9 @@ export default function RestoAdmin() {
 
             {/* Table */}
 
-            <div className="w-full overflow-x-auto">
+            {/* <div className="w-full overflow-x-auto"> */}
+            <div className="w-full overflow-x-auto overflow-y-hidden">
+
               <table className="min-w-full border-collapse text-xs sm:text-sm">
                 <thead className="bg-blue-100">
                   <tr>
