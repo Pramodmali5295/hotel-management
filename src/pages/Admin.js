@@ -594,7 +594,7 @@ export default function Admin() {
             </div>
 
             {/* --- MOBILE: Card List (no horizontal scroll) --- */}
-             {/* <div className="md:hidden space-y-4">
+            {/* <div className="md:hidden space-y-4">
               {currentCustomers.length > 0 ? (
                 currentCustomers.map((cust) => (
                   <div
@@ -661,78 +661,78 @@ export default function Admin() {
                 </div>
               )}
             </div>  */}
-           
 
-         <div className="md:hidden space-y-4">
-  {currentCustomers.length > 0 ? (
-    currentCustomers.map((cust) => (
-      <div
-        key={cust.id}
-        className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm"
-      >
-        {/* Top Section */}
-        <div className="flex justify-between items-start gap-3">
-          <div>
-            <div className="text-sm text-gray-500">Room</div>
-            <div className="text-lg font-semibold text-gray-800">
-              {cust.roomNo || "—"}
+            <div className="md:hidden space-y-4">
+              {currentCustomers.length > 0 ? (
+                currentCustomers.map((cust) => (
+                  <div
+                    key={cust.id}
+                    className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm"
+                  >
+                    <div className="flex justify-between items-start gap-3">
+                      <div>
+                        <div className="text-sm text-gray-500">Room</div>
+                        <div className="text-lg font-semibold text-gray-800">
+                          {cust.roomNo || "—"}
+                        </div>
+                      </div>
+
+                      <div className="text-right">
+                        <div className="text-sm text-gray-500">Check-in</div>
+                        <div className="text-sm text-gray-800">
+                          {cust.checkInTime || "—"}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-3 grid grid-cols-1 gap-1">
+                      <div>
+                        <div className="text-sm text-gray-500">Name</div>
+                        <div className="font-medium text-gray-800">
+                          {cust.name}
+                        </div>
+                      </div>
+
+                      <div className="mt-1">
+                        <div className="text-sm text-gray-500">Mobile</div>
+                        <div className="text-sm text-gray-800">
+                          {cust.mobile}
+                        </div>
+                      </div>
+
+                      {/* --- BUTTONS IN ONE ROW --- */}
+                      <div className="mt-2 flex flex-row items-center gap-2">
+                        <button
+                          onClick={() => openViewModal(cust)}
+                          className="inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg text-sm shadow-sm transition-all"
+                        >
+                          <Eye className="w-4 h-4" /> View
+                        </button>
+
+                        <button
+                          onClick={() => openEditModal(cust)}
+                          className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white px-3 py-1 rounded-lg text-sm shadow-sm transition-all"
+                        >
+                          <Pencil className="w-4 h-4" /> Update
+                        </button>
+
+                        <button
+                          onClick={() => handleDeleteCustomer(cust.id)}
+                          className="inline-flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg text-sm shadow-sm transition-all"
+                        >
+                          <Trash2 className="w-4 h-4" /> Delete
+                        </button>
+                      </div>
+                      {/* --------------------------- */}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-6 text-gray-500 font-medium">
+                  No customers found.
+                </div>
+              )}
             </div>
-          </div>
-
-          <div className="text-right">
-            <div className="text-sm text-gray-500">Check-in</div>
-            <div className="text-sm text-gray-800">
-              {cust.checkInTime || "—"}
-            </div>
-          </div>
-        </div>
-
-        {/* Customer Info */}
-        <div className="mt-3 grid grid-cols-1 gap-1">
-          <div>
-            <div className="text-sm text-gray-500">Name</div>
-            <div className="font-medium text-gray-800">{cust.name}</div>
-          </div>
-
-          <div className="mt-1">
-            <div className="text-sm text-gray-500">Mobile</div>
-            <div className="text-sm text-gray-800">{cust.mobile}</div>
-          </div>
-        </div>
-
-        {/* --- ACTION BUTTONS IN ONE SINGLE ROW --- */}
-        <div className="mt-3 flex flex-row justify-start items-center gap-2 flex-wrap">
-          <button
-            onClick={() => openViewModal(cust)}
-            className="inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg text-sm shadow-sm transition-all"
-          >
-            <Eye className="w-4 h-4" /> View
-          </button>
-
-          <button
-            onClick={() => openEditModal(cust)}
-            className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white px-3 py-1 rounded-lg text-sm shadow-sm transition-all"
-          >
-            <Pencil className="w-4 h-4" /> Update
-          </button>
-
-          <button
-            onClick={() => handleDeleteCustomer(cust.id)}
-            className="inline-flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg text-sm shadow-sm transition-all"
-          >
-            <Trash2 className="w-4 h-4" /> Delete
-          </button>
-        </div>
-        {/* --------------------------------------- */}
-      </div>
-    ))
-  ) : (
-    <div className="text-center py-6 text-gray-500 font-medium">
-      No customers found.
-    </div>
-  )}
-</div>
-
 
             {/* --- DESKTOP / TABLET: Table view --- */}
             <div className="hidden md:block overflow-x-auto rounded-2xl border border-gray-200 shadow-md">
