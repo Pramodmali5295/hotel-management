@@ -1342,34 +1342,29 @@ export default function Admin() {
   //     );
   //   }
   // };
-const handleCustomerRegistered = useCallback(
+
+ const handleCustomerRegistered = useCallback(
   (customer) => {
     if (customer.messageSent) return;
 
-    // 🛑 Skip if checkout info is missing
     if (!customer.checkOut || !customer.checkOutTime) {
-      console.log(
-        "⏳ Skipping message send — waiting for admin to add checkout info."
-      );
+      console.log("⏳ Skipping message send — waiting for admin to add checkout info.");
       return;
     }
 
-    // ✅ Send check-in message immediately
     if (messages.checkin) sendMessage(customer, "checkin");
 
-    // ✅ Determine checkout date/time
     const checkoutDateTime = new Date(
       `${customer.checkOut}T${customer.checkOutTime}`
     );
     const now = new Date();
 
-    // ✅ Store timeout IDs to clear after checkout
     const customTimeouts = [];
 
-    // Schedule custom messages only before checkout
     const customKeys = Object.keys(messages).filter((key) =>
       key.startsWith("custom_")
     );
+
     customKeys.forEach((key, index) => {
       const delay = (index + 1) * 60 * 1000;
       const scheduledTime = new Date(now.getTime() + delay);
@@ -1380,7 +1375,6 @@ const handleCustomerRegistered = useCallback(
       }
     });
 
-    // Schedule checkout message (1 min before checkout)
     if (messages.checkout) {
       const delay = checkoutDateTime.getTime() - now.getTime() - 1 * 60 * 1000;
       if (delay > 0) {
@@ -1391,17 +1385,14 @@ const handleCustomerRegistered = useCallback(
       }
     }
 
-    // ✅ Mark as message sent
     if (hotel?.id && customer?.id) {
       update(
         ref(db, `${hotel.nodeType}/${hotel.id}/customers/${customer.id}`),
-        {
-          messageSent: true,
-        }
+        { messageSent: true }
       );
     }
   },
-  [messages, hotel] // <-- MUST include these
+  [messages, hotel, sendMessage]
 );
 
   // ------------------- AUTH + HOTEL/RESTO DATA FETCH -------------------
