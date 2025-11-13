@@ -733,103 +733,108 @@ export default function RestoAdmin() {
               </div>
             )} */}
 
-        
-<div className="w-full overflow-x-auto overflow-y-hidden">
-  <table className="min-w-[750px] w-full border-collapse text-xs sm:text-sm table-fixed">
-    <thead className="bg-blue-100">
-      <tr>
-        <th className="p-2 sm:p-3 text-left border-b w-[25%]">Name</th>
-        <th className="p-2 sm:p-3 text-left border-b w-[20%]">Mobile</th>
-        <th className="p-2 sm:p-3 text-left border-b w-[20%]">DOB</th>
-        <th className="p-2 sm:p-3 text-left border-b w-[15%]">Gender</th>
-        <th className="p-2 sm:p-3 text-center border-b w-[20%]">Actions</th>
-      </tr>
-    </thead>
+            <div className="w-full overflow-x-auto">
+              <table className="min-w-[650px] w-full border-collapse text-xs sm:text-sm">
+                <thead className="bg-blue-100">
+                  <tr>
+                    <th className="p-2 border-b text-left">Name</th>
+                    <th className="p-2 border-b text-left">Mobile</th>
+                    <th className="p-2 border-b text-left">DOB</th>
+                    <th className="p-2 border-b text-left">Gender</th>
+                    <th className="p-2 border-b text-center">Actions</th>
+                  </tr>
+                </thead>
 
-    <tbody>
-      {currentCustomers.length > 0 ? (
-        currentCustomers.map(([key, item]) => (
-          <tr key={key} className="hover:bg-gray-50 transition">
+                <tbody>
+                  {currentCustomers.length > 0 ? (
+                    currentCustomers.map(([key, item]) => (
+                      <tr key={key} className="hover:bg-gray-50">
+                        <td className="p-2 border-b whitespace-nowrap">
+                          {item.name}
+                        </td>
 
-            <td className="p-2 sm:p-3 border-b truncate">{item.name}</td>
+                        <td className="p-2 border-b whitespace-nowrap">
+                          {item.mobile}
+                        </td>
 
-            <td className="p-2 sm:p-3 border-b truncate">{item.mobile}</td>
+                        <td className="p-2 border-b whitespace-nowrap">
+                          {item.dob}
+                        </td>
 
-            <td className="p-2 sm:p-3 border-b truncate">{item.dob}</td>
+                        <td className="p-2 border-b whitespace-nowrap">
+                          {item.gender}
+                        </td>
 
-            <td className="p-2 sm:p-3 border-b truncate">{item.gender}</td>
+                        <td className="p-2 border-b text-center whitespace-nowrap">
+                          <div className="flex justify-center gap-2">
+                            <button
+                              onClick={() => editCustomerHandler(key, item)}
+                              className="bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 rounded-lg text-xs"
+                            >
+                              Update
+                            </button>
 
-            <td className="p-2 sm:p-3 border-b text-center">
-              <div className="flex justify-center gap-2 flex-wrap">
+                            <button
+                              onClick={() => deleteCustomer(key)}
+                              className="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded-lg text-xs"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td
+                        colSpan="5"
+                        className="text-center py-4 text-gray-500 italic border-b"
+                      >
+                        No customers found.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex justify-center items-center gap-3 mt-6 text-sm">
                 <button
-                  onClick={() => editCustomerHandler(key, item)}
-                  className="flex items-center gap-1 bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1.5 rounded-lg text-xs sm:text-sm"
+                  onClick={() =>
+                    currentPage > 1 && handlePageChange(currentPage - 1)
+                  }
+                  disabled={currentPage === 1}
+                  className={`px-4 py-2 rounded-lg border ${
+                    currentPage === 1
+                      ? "bg-gray-100 text-gray-400"
+                      : "bg-white text-blue-600 hover:bg-blue-50"
+                  }`}
                 >
-                  <Edit3 size={14} /> Update
+                  ← Prev
                 </button>
 
+                <span className="text-gray-700">
+                  Page {currentPage} of {totalPages}
+                </span>
+
                 <button
-                  onClick={() => deleteCustomer(key)}
-                  className="flex items-center gap-1 bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-xs sm:text-sm"
+                  onClick={() =>
+                    currentPage < totalPages &&
+                    handlePageChange(currentPage + 1)
+                  }
+                  disabled={currentPage === totalPages}
+                  className={`px-4 py-2 rounded-lg border ${
+                    currentPage === totalPages
+                      ? "bg-gray-100 text-gray-400"
+                      : "bg-white text-blue-600 hover:bg-blue-50"
+                  }`}
                 >
-                  <Trash2 size={14} /> Delete
+                  Next →
                 </button>
               </div>
-            </td>
-
-          </tr>
-        ))
-      ) : (
-        <tr>
-          <td
-            colSpan="5"
-            className="text-center py-4 text-gray-500 italic border-b"
-          >
-            No customers found.
-          </td>
-        </tr>
-      )}
-    </tbody>
-  </table>
-</div>
-
-{/* Pagination */}
-{totalPages > 1 && (
-  <div className="flex flex-wrap justify-center items-center gap-3 mt-6 text-sm sm:text-base">
-    <button
-      onClick={() =>
-        currentPage > 1 && handlePageChange(currentPage - 1)
-      }
-      disabled={currentPage === 1}
-      className={`px-5 py-2 rounded-lg border ${
-        currentPage === 1
-          ? "bg-gray-100 text-gray-400"
-          : "bg-white text-blue-600 hover:bg-blue-50"
-      }`}
-    >
-      ← Prev
-    </button>
-
-    <span className="text-gray-700">
-      Page {currentPage} of {totalPages}
-    </span>
-
-    <button
-      onClick={() =>
-        currentPage < totalPages && handlePageChange(currentPage + 1)
-      }
-      disabled={currentPage === totalPages}
-      className={`px-5 py-2 rounded-lg border ${
-        currentPage === totalPages
-          ? "bg-gray-100 text-gray-400"
-          : "bg-white text-blue-600 hover:bg-blue-50"
-      }`}
-    >
-      Next →
-    </button>
-  </div>
-)}
-
+            )}
           </div>
         )}
 
