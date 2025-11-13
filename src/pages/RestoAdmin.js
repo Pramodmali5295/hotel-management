@@ -317,7 +317,6 @@ export default function RestoAdmin() {
           <>
             {/* Resto Info + QR Code in one row */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-              {/* LEFT: RESTO INFO */}
               <div className="bg-white shadow p-6 rounded-2xl border border-gray-200">
                 <h2 className="text-lg sm:text-xl font-semibold text-indigo-700 mb-4 flex items-center gap-2">
                   <QrCode className="w-5 h-5 text-indigo-600" /> Restaurant Info
@@ -350,7 +349,6 @@ export default function RestoAdmin() {
                 </div>
               </div>
 
-              {/* RIGHT: QR CODE */}
               <div className="bg-gradient-to-br from-indigo-50 to-blue-100 p-6 rounded-2xl text-center shadow border border-indigo-100">
                 <h2 className="text-lg sm:text-xl font-semibold text-indigo-700 mb-3 flex items-center justify-center gap-2">
                   <QrCode className="w-5 h-5 text-indigo-600" /> Registration QR
