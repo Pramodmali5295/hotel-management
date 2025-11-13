@@ -45,6 +45,7 @@ export default function RestoAdmin() {
   const [showQRMode, setShowQRMode] = useState(false);
   const newMessageRef = useRef(null);
   const navigate = useNavigate();
+  const [authLoading, setAuthLoading] = useState(true);
 
   // -------------------- FETCH DATA --------------------
   const fetchCustomers = async (restoId) => {
@@ -68,6 +69,21 @@ export default function RestoAdmin() {
     }
   };
 
+  // 🔒 Prevent browser/mobile Back button
+  useEffect(() => {
+    window.history.pushState(null, "", window.location.href);
+
+    const blockBack = () => {
+      window.history.pushState(null, "", window.location.href);
+    };
+
+    window.addEventListener("popstate", blockBack);
+
+    return () => {
+      window.removeEventListener("popstate", blockBack);
+    };
+  }, []);
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const qrMode = params.get("qrMode") === "true";
@@ -77,10 +93,12 @@ export default function RestoAdmin() {
       setShowQRMode(true);
       setLoggedInRestoId(restoIdFromURL);
       fetchCustomers(restoIdFromURL);
+      setAuthLoading(false);
     } else {
       const unsubscribe = onAuthStateChanged(auth, async (user) => {
         if (user) {
           setLoggedInUser(user.email);
+
           const restoSnap = await get(ref(db, "resto"));
           if (restoSnap.exists()) {
             const restos = restoSnap.val();
@@ -92,10 +110,14 @@ export default function RestoAdmin() {
               }
             }
           }
+
+          setAuthLoading(false); // ⭐ Prevent redirect before session loads
         } else {
-          navigate("/");
+          setAuthLoading(false);
+          navigate("/"); // Only logout when user is ACTUALLY logged out
         }
       });
+
       return () => unsubscribe();
     }
   }, [navigate]);
@@ -284,6 +306,7 @@ export default function RestoAdmin() {
   ).length;
 
   const totalMessages = Object.keys(messages).length;
+  if (authLoading) return null;
 
   // -------------------- UI --------------------
   return (
@@ -552,7 +575,7 @@ export default function RestoAdmin() {
                   type="submit"
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold flex items-center justify-center gap-2 shadow-md transition"
                 >
-                  <Save /> {editingKey ? "Update" : "Add Customer"}
+                  <Save /> {editingKey ? "Update" : "Register"}
                 </button>
               </div>
             </form>
@@ -560,180 +583,7 @@ export default function RestoAdmin() {
         )}
 
         {/* Customer List */}
-        {/* {activeSection === "list" && (
-          <div className="bg-white rounded-2xl shadow-lg p-5 sm:p-8 border border-gray-100 overflow-x-auto">
-            <h2 className="text-lg sm:text-xl font-semibold text-blue-700 mb-6 flex items-center gap-2">
-              <Users /> Customer List
-            </h2>
 
-           
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-             
-              <div className="flex items-center border border-gray-300 rounded-xl px-3 py-2 focus-within:ring-2 focus-within:ring-blue-500">
-                <input
-                  type="date"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                  className="w-full bg-transparent outline-none text-sm sm:text-base"
-                />
-
-                {selectedDate && (
-                  <button
-                    type="button"
-                    onClick={() => setSelectedDate("")}
-                    className="ml-2 text-gray-500 hover:text-red-500"
-                    title="Clear date filter"
-                  >
-                    ×
-                  </button>
-                )}
-              </div>
-
-             
-              <div className="relative">
-                <Filter className="absolute left-3 top-3 text-gray-400" />
-                <select
-                  value={filterValue}
-                  onChange={(e) => setFilterValue(e.target.value)}
-                  className="border border-gray-300 pl-10 pr-4 py-3 rounded-xl w-full focus:ring-2 focus:ring-blue-500 outline-none text-sm sm:text-base"
-                >
-                  <option value="">All Genders</option>
-                  <option>Male</option>
-                  <option>Female</option>
-                  <option>Other</option>
-                </select>
-              </div>
-
-             
-              <div className="relative">
-                <Search className="absolute left-3 top-3 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search by name or mobile..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="border border-gray-300 pl-10 pr-4 py-3 rounded-xl w-full focus:ring-2 focus:ring-blue-500 outline-none text-sm sm:text-base"
-                />
-              </div>
-            </div>
-
-         
-
-            <div className="w-full overflow-x-auto">
-              <table className="min-w-full border-collapse text-xs sm:text-sm">
-                <thead className="bg-blue-100">
-                  <tr>
-                    <th className="p-2 sm:p-3 text-left border-b whitespace-nowrap">
-                      Name
-                    </th>
-                    <th className="p-2 sm:p-3 text-left border-b whitespace-nowrap">
-                      Mobile
-                    </th>
-                    <th className="p-2 sm:p-3 text-left border-b whitespace-nowrap">
-                      DOB
-                    </th>
-                    <th className="p-2 sm:p-3 text-left border-b whitespace-nowrap">
-                      Gender
-                    </th>
-                    <th className="p-2 sm:p-3 text-center border-b whitespace-nowrap">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {currentCustomers.length > 0 ? (
-                    currentCustomers.map(([key, item]) => (
-                      <tr
-                        key={key}
-                        className="hover:bg-gray-50 transition-colors duration-150"
-                      >
-                        <td className="p-2 sm:p-3 border-b align-middle max-w-[150px] truncate">
-                          {item.name}
-                        </td>
-
-                        <td className="p-2 sm:p-3 border-b align-middle max-w-[120px] truncate">
-                          {item.mobile}
-                        </td>
-
-                        <td className="p-2 sm:p-3 border-b align-middle max-w-[120px] truncate">
-                          {item.dob}
-                        </td>
-
-                        <td className="p-2 sm:p-3 border-b align-middle max-w-[100px] truncate">
-                          {item.gender}
-                        </td>
-
-                        <td className="p-2 sm:p-3 border-b text-center">
-                          <div className="flex flex-row sm:flex-row justify-center items-center gap-2 flex-wrap">
-                            <button
-                              onClick={() => editCustomerHandler(key, item)}
-                              className="flex items-center justify-center gap-1 bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all shadow-sm"
-                            >
-                              <Edit3 size={14} /> Update
-                            </button>
-
-                            <button
-                              onClick={() => deleteCustomer(key)}
-                              className="flex items-center justify-center gap-1 bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all shadow-sm"
-                            >
-                              <Trash2 size={14} /> Delete
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td
-                        colSpan="5"
-                        className="text-center py-4 text-gray-500 italic border-b"
-                      >
-                        No customers found.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-
-          
-            {totalPages > 1 && (
-              <div className="flex flex-wrap justify-center items-center gap-3 mt-6 text-sm sm:text-base">
-                <button
-                  onClick={() =>
-                    currentPage > 1 && handlePageChange(currentPage - 1)
-                  }
-                  disabled={currentPage === 1}
-                  className={`px-5 py-2 rounded-lg border ${
-                    currentPage === 1
-                      ? "bg-gray-100 text-gray-400"
-                      : "bg-white text-blue-600 hover:bg-blue-50"
-                  }`}
-                >
-                  ← Prev
-                </button>
-                <span className="text-gray-700">
-                  Page {currentPage} of {totalPages}
-                </span>
-                <button
-                  onClick={() =>
-                    currentPage < totalPages &&
-                    handlePageChange(currentPage + 1)
-                  }
-                  disabled={currentPage === totalPages}
-                  className={`px-5 py-2 rounded-lg border ${
-                    currentPage === totalPages
-                      ? "bg-gray-100 text-gray-400"
-                      : "bg-white text-blue-600 hover:bg-blue-50"
-                  }`}
-                >
-                  Next →
-                </button>
-              </div>
-            )}
-          </div>
-        )} */}
         {activeSection === "list" && (
           <div className="bg-white rounded-2xl shadow-lg p-4 sm:p-6 md:p-8 border border-gray-100">
             {/* Header */}

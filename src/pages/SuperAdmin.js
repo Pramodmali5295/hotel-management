@@ -34,6 +34,7 @@ export default function SuperAdmin() {
     mobile: "",
     type: "hotel",
   });
+
   const [editingKey, setEditingKey] = useState(null);
   const [loggedInUser, setLoggedInUser] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -66,14 +67,46 @@ export default function SuperAdmin() {
     setRestoCount(restoData.length);
   };
 
+ 
+  // FIX: prevent false logout on refresh/back
+  const [authLoading, setAuthLoading] = useState(true);
+
+  // FIX: stop browser back navigation
+  useEffect(() => {
+    window.history.pushState(null, "", window.location.href);
+
+    const blockBack = () => {
+      window.history.pushState(null, "", window.location.href);
+    };
+
+    window.addEventListener("popstate", blockBack);
+
+    return () => {
+      window.removeEventListener("popstate", blockBack);
+    };
+  }, []);
+
+  // AUTH CHECK (Corrected)
   useEffect(() => {
     fetchEntries();
+
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) setLoggedInUser(user.email);
-      else navigate("/");
+      if (user) {
+        // user is logged in → stay here
+        setLoggedInUser(user.email);
+        setAuthLoading(false);
+      } else {
+        // only navigate when user is ACTUALLY logged out
+        setAuthLoading(false);
+        navigate("/");
+      }
     });
+
     return () => unsubscribe();
   }, [navigate]);
+
+  // Show nothing until Firebase finishes checking session
+  if (authLoading) return null;
 
   // Add new entry
   const addEntry = async (e) => {

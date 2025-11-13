@@ -78,6 +78,8 @@ export default function Admin() {
   const navigate = useNavigate();
   const prevCustomerIdsRef = useRef(new Set());
   const dummyMessageShownRef = useRef(false);
+  const [authLoading, setAuthLoading] = useState(true);
+
 
   // ------------------- MESSAGE HANDLER FUNCTION (kept intact) -------------------
 
@@ -154,52 +156,116 @@ export default function Admin() {
   );
 
   // ------------------- AUTH + HOTEL/RESTO DATA FETCH -------------------
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        setLoggedInUser(user.email);
-        const dbRef = ref(db);
-        const nodes = ["hotels", "resto"];
-        let found = false;
+  // useEffect(() => {
+  //   const unsubscribe = onAuthStateChanged(auth, async (user) => {
+  //     if (user) {
+  //       setLoggedInUser(user.email);
+  //       const dbRef = ref(db);
+  //       const nodes = ["hotels", "resto"];
+  //       let found = false;
 
-        for (const node of nodes) {
-          const snapshot = await get(child(dbRef, node));
-          if (snapshot.exists()) {
-            const items = snapshot.val();
-            for (const key in items) {
-              if (items[key].email === user.email) {
-                setHotel({ id: key, nodeType: node, ...items[key] });
+  //       for (const node of nodes) {
+  //         const snapshot = await get(child(dbRef, node));
+  //         if (snapshot.exists()) {
+  //           const items = snapshot.val();
+  //           for (const key in items) {
+  //             if (items[key].email === user.email) {
+  //               setHotel({ id: key, nodeType: node, ...items[key] });
 
-                if (node === "resto" && !dummyMessageShownRef.current) {
-                  alert(
-                    `Welcome ${items[key].name}! This is a demo message for your bar/restaurant admin panel.`
-                  );
-                  dummyMessageShownRef.current = true;
-                }
+  //               if (node === "resto" && !dummyMessageShownRef.current) {
+  //                 alert(
+  //                   `Welcome ${items[key].name}! This is a demo message for your bar/restaurant admin panel.`
+  //                 );
+  //                 dummyMessageShownRef.current = true;
+  //               }
 
-                const msgRef = ref(db, `${node}/${key}/messages`);
-                onValue(msgRef, (msgSnap) => {
-                  if (msgSnap.exists()) setMessages(msgSnap.val());
-                });
+  //               const msgRef = ref(db, `${node}/${key}/messages`);
+  //               onValue(msgRef, (msgSnap) => {
+  //                 if (msgSnap.exists()) setMessages(msgSnap.val());
+  //               });
 
-                found = true;
-                break;
+  //               found = true;
+  //               break;
+  //             }
+  //           }
+  //         }
+  //         if (found) break;
+  //       }
+
+  //       if (!found) {
+  //         alert("Admin not found in database!");
+  //         navigate("/");
+  //       }
+  //     } else {
+  //       navigate("/");
+  //     }
+  //   });
+  //   return () => unsubscribe();
+  // }, [navigate]);
+useEffect(() => {
+  const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      setLoggedInUser(user.email);
+
+      const dbRef = ref(db);
+      const nodes = ["hotels", "resto"];
+      let found = false;
+
+      for (const node of nodes) {
+        const snapshot = await get(child(dbRef, node));
+        if (snapshot.exists()) {
+          const items = snapshot.val();
+          for (const key in items) {
+            if (items[key].email === user.email) {
+              setHotel({ id: key, nodeType: node, ...items[key] });
+
+              if (node === "resto" && !dummyMessageShownRef.current) {
+                alert(
+                  `Welcome ${items[key].name}! This is a demo message for your bar/restaurant admin panel.`
+                );
+                dummyMessageShownRef.current = true;
               }
+
+              const msgRef = ref(db, `${node}/${key}/messages`);
+              onValue(msgRef, (msgSnap) => {
+                if (msgSnap.exists()) setMessages(msgSnap.val());
+              });
+
+              found = true;
+              break;
             }
           }
-          if (found) break;
         }
+        if (found) break;
+      }
 
-        if (!found) {
-          alert("Admin not found in database!");
-          navigate("/");
-        }
-      } else {
+      if (!found) {
+        alert("Admin not found in database!");
         navigate("/");
       }
-    });
-    return () => unsubscribe();
-  }, [navigate]);
+
+      setAuthLoading(false);   // ⭐ VERY IMPORTANT
+    } 
+    else {
+      setAuthLoading(false);
+      navigate("/");           // Logs out ONLY when user is ACTUALLY logged out
+    }
+  });
+
+  return () => unsubscribe();
+}, [navigate]);
+
+useEffect(() => {
+  window.history.pushState(null, "", window.location.href);
+
+  const blockBack = () => {
+    window.history.pushState(null, "", window.location.href);
+  };
+
+  window.addEventListener("popstate", blockBack);
+
+  return () => window.removeEventListener("popstate", blockBack);
+}, []);
 
   // ------------------- CUSTOMERS FETCH -------------------
 
@@ -379,6 +445,7 @@ export default function Admin() {
       </div>
     );
   }
+if (authLoading) return null;
 
   // ------------------- UI -------------------
   return (
