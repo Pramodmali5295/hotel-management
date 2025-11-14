@@ -525,7 +525,13 @@ export default function RestoAdmin() {
             >
               {[
                 { id: "name", label: "Full Name", type: "text" },
-                { id: "mobile", label: "Mobile Number", type: "tel" },
+                {
+                  id: "mobile",
+                  label: "Mobile Number",
+                  type: "tel",
+                  pattern: "[0-9]{10}",
+                  maxLength: "10",
+                },
                 { id: "dob", label: "Date of Birth", type: "date" },
               ].map(({ id, label, type }) => (
                 <div key={id} className="flex flex-col">
@@ -535,13 +541,22 @@ export default function RestoAdmin() {
                   >
                     {label}
                   </label>
+                
                   <input
                     id={id}
                     type={type}
+                    maxLength={id === "mobile" ? 10 : undefined}
                     value={customer[id]}
-                    onChange={(e) =>
-                      setCustomer({ ...customer, [id]: e.target.value })
-                    }
+                    onChange={(e) => {
+                      let value = e.target.value;
+
+                      if (id === "mobile") {
+                        // allow only digits and enforce 10-digit limit
+                        value = value.replace(/\D/g, "").slice(0, 10);
+                      }
+
+                      setCustomer({ ...customer, [id]: value });
+                    }}
                     className="border border-gray-300 px-4 py-3 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
                   />
                 </div>

@@ -180,20 +180,60 @@ export default function CustomerRegistration({
     return age >= 0 ? age : "";
   };
 
+ 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setCustomer((prev) => {
-      const updated = { ...prev, [name]: value };
-      if (name === "dob") updated.age = calculateAge(value);
-      return updated;
-    });
+  let { name, value } = e.target;
 
-    setValidationErrors((prev) => {
-      const updated = { ...prev };
-      delete updated[name];
-      return updated;
-    });
-  };
+  // Name validation
+  if (name === "name") {
+    value = value.replace(/[^a-zA-Z\s]/g, "");
+
+    if (value.trim().length < 3) {
+      setValidationErrors((prev) => ({
+        ...prev,
+        name: "Name must be at least 3 letters"
+      }));
+    } else {
+      // clear error
+      setValidationErrors((prev) => {
+        const u = { ...prev };
+        delete u.name;
+        return u;
+      });
+    }
+  }
+
+  // Mobile validation (only numbers, max 10)
+  if (name === "mobile") {
+    value = value.replace(/\D/g, "").slice(0, 10);
+
+    if (value.length !== 10) {
+      setValidationErrors((prev) => ({
+        ...prev,
+        mobile: "Enter a valid 10-digit mobile number"
+      }));
+    } else {
+      // clear error
+      setValidationErrors((prev) => {
+        const u = { ...prev };
+        delete u.mobile;
+        return u;
+      });
+    }
+  }
+
+  // Update customer state
+  setCustomer((prev) => {
+    const updated = { ...prev, [name]: value };
+
+    if (name === "dob") {
+      updated.age = calculateAge(value);
+    }
+
+    return updated;
+  });
+};
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();

@@ -332,13 +332,21 @@ export default function SuperAdmin() {
                 <label className="flex items-center gap-1 text-gray-700 font-medium mb-1">
                   {f.icon} {f.label}
                 </label>
+
                 <input
                   type={f.type}
                   value={entry[f.key]}
                   disabled={f.disabled}
-                  onChange={(e) =>
-                    setEntry({ ...entry, [f.key]: e.target.value })
-                  }
+                  onChange={(e) => {
+                    let value = e.target.value;
+
+                    // Force lowercase only for email field
+                    if (f.key === "email") {
+                      value = value.toLowerCase();
+                    }
+
+                    setEntry({ ...entry, [f.key]: value });
+                  }}
                   className="border border-gray-300 px-4 py-3 rounded-xl w-full focus:ring-2 focus:ring-blue-500 outline-none text-sm sm:text-base"
                 />
               </div>
