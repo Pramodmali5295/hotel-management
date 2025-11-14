@@ -67,7 +67,6 @@ export default function SuperAdmin() {
     setRestoCount(restoData.length);
   };
 
- 
   // FIX: prevent false logout on refresh/back
   const [authLoading, setAuthLoading] = useState(true);
 
